@@ -2,8 +2,6 @@ package com.example.touristapp
 
 import android.content.Context
 import android.widget.Toast
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,10 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
@@ -31,24 +27,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 
 fun isCorrectDate(iVisited: String): Boolean {
-    var dd = 0
-    var mm = 0
-    var yyyy = 0
+    val dd: Int
+    val mm: Int
+    val yyyy: Int
+    val digits = listOf(0, 1, 3, 4, 6, 7, 8, 9)
+
+    for (i in digits) {
+        if (iVisited[i].isLetter()) {
+            return false
+        }
+    }
+    if (iVisited.length != 10) {
+        return false
+    }
 
     if (iVisited[2] == '/' && iVisited[5] == '/') {
         dd = iVisited[0].toString().toInt() * 10 + iVisited[1].toString().toInt()
@@ -78,92 +76,16 @@ private fun deletePlaceToast(context: Context) {
 }
 
 @Composable
-fun AddedPlaceView(place: AddedPlace) {
-    Column(
-        verticalArrangement = Arrangement.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(10.dp)
-    ) {
-        if (place.name.isNotEmpty() && place.desc.isNotEmpty() && place.category.isNotEmpty() && place.visited.isNotEmpty() && place.badge.isNotEmpty()) {
-            Column(
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(15.dp))
-                    .background(colorResource(id = R.color.primary))
-            ) {
-                Row {
-                    val category = place.category
-                    val cImage = CategoryList().getCategoryImg(category)
-                    Image(
-                        painter = painterResource(id = cImage.imageId),
-                        contentDescription = stringResource(cImage.categoryId),
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(50.dp))
-                            .padding(start = 20.dp, top = 20.dp)
-                            .size(150.dp)
-                    )
-                    Column(modifier = Modifier.padding(top = 5.dp)) {
-                        Text(
-                            text = place.name,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp,
-                            modifier = Modifier
-                                .padding(start = 10.dp, 10.dp)
-                        )
-                        Text(
-                            text = "Visited: " + place.visited,
-                            fontSize = 18.sp,
-                            modifier = Modifier
-                                .padding(10.dp, top = 10.dp)
-                        )
-                        if (place.badge == "Gold badge") {
-                            val badge = place.badge
-                            val bImage = Badge().getBadgeImg(badge)
-                            Image(
-                                painter = painterResource(id = bImage.imageId),
-                                contentDescription = stringResource(bImage.starId),
-                                modifier = Modifier
-                                    .padding(4.dp, top = 10.dp)
-                                    .size(64.dp)
-                            )
-                        }
-                    }
-                }
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp)
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(colorResource(id = R.color.secondary))
-                ) {
-                    Text(
-                        text = place.desc,
-                        modifier = Modifier.padding(8.dp),
-                        fontSize = 14.sp
-                    )
-                }
-            }
-
-        }
-    }
-}
-
-
-@Composable
-fun AdderList(navController: NavController) {
+fun AdderList() {
     fun removePlace(place: AddedPlace, list: List<AddedPlace>): List<AddedPlace> {
         val newList = mutableListOf<AddedPlace>()
-
         for (item in list) {
-            if (item.name == place.name && item.desc == place.desc && item.visited == place.visited) {
+            if (item.name == place.name && item.desc == place.desc && item.visited == place.visited && item.badge == place.badge) {
                 continue
             } else {
                 newList.add(item)
             }
         }
-
         return newList
     }
 
@@ -176,12 +98,13 @@ fun AdderList(navController: NavController) {
         )
     }
     var placeToEdit: AddedPlace
-    val mContext: Context = LocalContext.current
     var iName by remember { mutableStateOf("") }
     var iDesc by remember { mutableStateOf("") }
     var iCategory by remember { mutableStateOf("") }
     var iVisited by remember { mutableStateOf("") }
     var iBadge by remember { mutableStateOf("") }
+
+    val mContext: Context = LocalContext.current
 
     when (state) {
         "Adder" -> Column(
@@ -199,19 +122,16 @@ fun AdderList(navController: NavController) {
                 value = iName,
                 onValueChange = { iName = it },
                 label = "Name",
-                modifier = Modifier
             )
             EditTextField(
                 value = iDesc,
                 onValueChange = { iDesc = it },
                 label = "Description",
-                modifier = Modifier
             )
             EditTextField(
                 value = iVisited,
                 onValueChange = { iVisited = it },
                 label = "DD/MM/YYYY",
-                modifier = Modifier
             )
 
             RadioButtons(onCategorySelected = { iCategory = it })
@@ -233,7 +153,6 @@ fun AdderList(navController: NavController) {
                 Button(
                     onClick = {
                         if (iName.isNotBlank() && iDesc.isNotBlank() && iCategory.isNotBlank() && iVisited.isNotBlank()) {
-                            iVisited = iVisited.toString()
                             if (isCorrectDate(iVisited)) {
                                 val newPlace = AddedPlace(iName, iDesc, iCategory, iVisited, iBadge)
                                 addedPlaceList += newPlace
@@ -242,7 +161,6 @@ fun AdderList(navController: NavController) {
                                 iVisited = ""
                                 iBadge = ""
                                 state = "Content"
-                                println(state)
                                 newPlaceToast(mContext)
                             }
                         }
@@ -283,16 +201,14 @@ fun AdderList(navController: NavController) {
             }
 
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(20.dp))
-                LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                Spacer(modifier = Modifier.height(10.dp))
+                LazyColumn() {
                     if (addedPlaceList.isNotEmpty()) {
                         items(addedPlaceList) { place ->
                             Column(
                                 modifier = Modifier
-                                    .fillMaxSize()
                                     .clickable {
                                         placeToEdit = place
                                         iName = placeToEdit.name
@@ -308,7 +224,7 @@ fun AdderList(navController: NavController) {
                             ) {
                                 AddedPlaceView(place)
                             }
-                            Spacer(modifier = Modifier.height(20.dp))
+                            Spacer(modifier = Modifier.height(10.dp))
                         }
                     }
                 }
@@ -331,19 +247,16 @@ fun AdderList(navController: NavController) {
                 value = iName,
                 onValueChange = { iName = it },
                 label = "Name",
-                modifier = Modifier
             )
             EditTextField(
                 value = iDesc,
                 onValueChange = { iDesc = it },
                 label = "Description",
-                modifier = Modifier
             )
             EditTextField(
                 value = iVisited,
                 onValueChange = { iVisited = it },
                 label = "DD/MM/YYYY",
-                modifier = Modifier
             )
 
             RadioButtons(onCategorySelected = { iCategory = it })
@@ -371,7 +284,6 @@ fun AdderList(navController: NavController) {
                 Button(
                     onClick = {
                         if (iName.isNotBlank() && iDesc.isNotBlank() && iCategory.isNotBlank() && iVisited.isNotBlank()) {
-                            iVisited = iVisited.toString()
                             if (isCorrectDate(iVisited)) {
                                 val newPlace = AddedPlace(iName, iDesc, iCategory, iVisited, iBadge)
                                 addedPlaceList += newPlace
@@ -406,7 +318,6 @@ fun EditTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
-    modifier: Modifier = Modifier,
 ) {
     TextField(
         value = value,
@@ -443,7 +354,7 @@ fun RadioButtonsBadge(onCategorySelected: (String) -> Unit) {
         fontSize = 13.sp,
         modifier = Modifier.padding(start = 20.dp, top = 10.dp)
     )
-    Row() {
+    Row {
         radioButtons.forEachIndexed { index, info ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -509,8 +420,10 @@ fun RadioButtons(onCategorySelected: (String) -> Unit) {
         fontSize = 13.sp,
         modifier = Modifier.padding(start = 20.dp, top = 10.dp)
     )
-    Row(horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.padding(start=30.dp)) {
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.padding(start = 30.dp)
+    ) {
         radioButtons.forEachIndexed { index, info ->
             Column(
                 verticalArrangement = Arrangement.Center,
@@ -549,6 +462,5 @@ fun RadioButtons(onCategorySelected: (String) -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun AdderListPreview() {
-    var navController = rememberNavController()
-    AdderList(navController)
+    AdderList()
 }

@@ -22,7 +22,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
-import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -33,10 +32,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.touristapp.ui.theme.TouristAppTheme
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -54,16 +49,16 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                 ) {
-                    var navController = rememberNavController()
+                    val navController = rememberNavController()
                     NavHost(navController = navController, startDestination = "TouristAppContent") {
                         composable(route = "TouristAppContent") {
                             TouristAppContent(navController = navController)
                         }
                         composable(route = "TouristPlacesContent") {
-                            TouristPlacesContent(modifier = Modifier, navController = navController)
+                            TouristPlacesContent(modifier = Modifier)
                         }
                         composable(route = "AdderList") {
-                            AdderList(navController = navController)
+                            AdderList()
                         }
                     }
                 }
@@ -74,26 +69,26 @@ class MainActivity : ComponentActivity() {
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
-fun TouristPlacesContent(modifier: Modifier = Modifier, navController: NavController) {
+fun TouristPlacesContent(modifier: Modifier = Modifier) {
     val categoryList = CategoryList().getList()
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth()
 
-        ) {
-            Spacer(modifier = Modifier.height(20.dp))
-            LazyColumn(modifier = modifier.fillMaxWidth()) {
-                items(categoryList) { category ->
-                    PlacesContentView(category, modifier = Modifier)
-                    Spacer(modifier = Modifier.height(20.dp))
-                }
+    ) {
+        Spacer(modifier = Modifier.height(20.dp))
+        LazyColumn(modifier = modifier.fillMaxWidth()) {
+            items(categoryList) { category ->
+                PlacesContentView(category)
+                Spacer(modifier = Modifier.height(20.dp))
             }
         }
+    }
 }
 
 @Composable
-fun PlacesContentView(category: CategoryImage, modifier: Modifier = Modifier) {
+fun PlacesContentView(category: CategoryImage) {
     Card(modifier = Modifier) {
         Column(
             verticalArrangement = Arrangement.Center,
@@ -135,7 +130,8 @@ fun TouristAppContent(navController: NavController) {
                 .padding(20.dp)
                 .clickable { navController.navigate("TouristPlacesContent") }
                 .clip(RoundedCornerShape(25.dp))
-                .background(Color(0xFF11512E)
+                .background(
+                    Color(0xFF11512E)
                 )
         ) {
             Text(
@@ -163,6 +159,6 @@ fun TouristAppContent(navController: NavController) {
 @Preview(showBackground = true)
 @Composable
 fun TouristPlacesContent() {
-    var navController = rememberNavController()
+    val navController = rememberNavController()
     TouristAppContent(navController = navController)
 }
