@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">TouristApp</string>
+    <string name="polish_lakes">Polish lakes</string>
+    <string name="mountains">Mountains</string>
+    <string name="lake">Lake</string>
+    <string name="city">City</string>
+    <string name="beach">Beach</string>
+    <string name="river">River</string>
+    <string name="categoryOfPlaces">Category of places</string>
+    <string name="visitedPlacesList">Visited places list</string>
+    <string name="goldBadge">Gold badge</string>
+</resources>
